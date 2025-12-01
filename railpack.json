@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "node",
+  "packages": {
+    "node": "22"
+  },
+  "steps": {
+    "install": {
+      "commands": [
+        { "cmd": "npm ci --omit=dev --prefix server", "customName": "Install server dependencies" }
+      ]
+    },
+    "build": {
+      "inputs": [{ "step": "install" }],
+      "commands": []
+    }
+  },
+  "deploy": {
+    "startCommand": "node server/server.js"
+  }
+}
