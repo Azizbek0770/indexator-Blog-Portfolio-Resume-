@@ -16,6 +16,12 @@
     }
   },
   "deploy": {
-    "startCommand": "node server/server.js"
+    "startCommand": "node server/server.js",
+    "inputs": [
+      {
+        "step": "install",
+        "include": ["."]
+      }
+    ]
   }
 }
