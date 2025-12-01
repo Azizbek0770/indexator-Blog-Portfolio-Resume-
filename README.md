@@ -68,8 +68,8 @@ A modern, animated, and fully responsive portfolio system with a secure admin da
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
-cd portfolio-system
+git clone https://github.com/Azizbek0770/indexator-Blog-Portfolio-Resume
+cd indexator-Blog-Portfolio-Resume
 ```
 
 ### 2. Set Up Supabase
@@ -341,4 +341,4 @@ For issues and questions:
 
 ---
 
-**Built with ❤️ for the developer community**
+**Built with ❤️ by Azizbek for the developer community**
