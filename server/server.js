@@ -1,35 +1,28 @@
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { initWebSocket } from './websocket/wsService.js';
+
 dotenv.config();
 
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import morgan from 'morgan';
+const { app } = await import('../api/index.js');
 
-// Create Express app
-const app = express();
+// Optional local health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'success', message: 'Server is running', timestamp: new Date().toISOString() });
+});
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(helmet());
-app.use(compression());
-app.use(morgan("dev"));
+const PORT = process.env.PORT || 5000;
+const server = createServer(app);
 
-// ---- Your routes here ----
-// Example:
-// import router from './routes/index.js';
-// app.use('/api', router);
+// Initialize WebSocket (Railway/full server only)
+initWebSocket(server);
 
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 API: http://localhost:${PORT}`);
+  console.log(`💾 Database: Supabase`);
+  console.log(`🔌 WebSocket: Enabled`);
+});
 
-// ⭐ LOCAL ONLY ― DO NOT RUN ON VERCEL
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Local dev server running at http://localhost:${PORT}`);
-  });
-}
-
-// Export app for Vercel (required)
 export default app;
