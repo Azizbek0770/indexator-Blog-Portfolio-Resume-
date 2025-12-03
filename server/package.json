@@ -4,9 +4,7 @@
   "description": "Portfolio backend API with Supabase",
   "main": "server.js",
   "type": "module",
-  "engines": {
-    "node": ">=18"
-  },
+  "engines": { "node": ">=18" },
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
@@ -14,13 +12,6 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "seed": "node database/seed.js"
   },
-  "keywords": [
-    "portfolio",
-    "api",
-    "express"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
     "bcryptjs": "^2.4.3",
