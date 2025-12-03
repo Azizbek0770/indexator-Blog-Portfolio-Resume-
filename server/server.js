@@ -1,33 +1,23 @@
-import dotenv from 'dotenv'
-import { createServer } from 'http'
-import { initWebSocket } from './websocket/wsService.js'
+import express from "express";
+import api from "./api/index.js";
 
-dotenv.config()
+const app = express();
 
-// ✅ FIXED RELATIVE IMPORT
-const { app } = await import('./api/index.js')
+// middleware
+app.use(express.json());
 
-// Optional local health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'success',
-    message: 'Server is running',
-    timestamp: new Date().toISOString()
-  })
-})
+// mount API
+app.use("/api", api);
 
-const PORT = process.env.PORT || 5000
-const server = createServer(app)
+// root health check
+app.get("/", (req, res) => {
+  res.send("Server running ✅");
+});
 
-// Initialize WebSocket (Railway/full server only)
-initWebSocket(server)
+const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`)
-  console.log(`🔗 API: http://localhost:${PORT}`)
-  console.log(`💾 Database: Supabase`)
-  console.log(`🔌 WebSocket: Enabled`)
-})
-
-export default app
+app.listen(PORT, () => {
+  console.log("🚀 Server started");
+  console.log(`🌍 Port: ${PORT}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
+});
