@@ -1,16 +1,17 @@
 import { Router } from "express";
 
-import about from "./about.js";
-import hero from "./hero.js";
-import services from "./services.js";
-import projects from "./projects.js";
-import blog from "./blog.js";
-import testimonials from "./testimonials.js";
-import skills from "./skills.js";
-import education from "./education.js";
-import experience from "./experiences.js";
-import certificates from "./certificates.js";
-import settings from "./settings.js";
+/* ✅ IMPORT FROM routes */
+import about from "../routes/about.js";
+import hero from "../routes/hero.js";
+import services from "../routes/services.js";
+import projects from "../routes/projects.js";
+import blog from "../routes/blog.js";
+import testimonials from "../routes/testimonials.js";
+import skills from "../routes/skills.js";
+import education from "../routes/education.js";
+import experience from "../routes/experiences.js";
+import certificates from "../routes/certificates.js";
+import settings from "../routes/settings.js";
 
 const router = Router();
 
