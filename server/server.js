@@ -6,35 +6,40 @@ import { initWebSocket } from "./websocket/wsService.js";
 
 const app = express();
 
-/* ✅ CORS FIX */
+/* ===== Middleware ===== */
+app.use(express.json());
+
 app.use(
   cors({
     origin: [
-      "https://indexator-blog-portfolio-resume.vercel.app"
+      "https://indexator-blog-portfolio-resume.vercel.app",
+      "https://indexator-blog-portfolio-resume-git-main-azizbek0770s-projects.vercel.app",
+      "https://indexator-blog-portfolio-resume-rfygqmxgk-azizbek0770s-projects.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   })
 );
 
-app.use(express.json());
-
-// API routes
+/* ===== API Routes ===== */
 app.use("/api", api);
 
-// Health check
+/* ===== Health Check ===== */
 app.get("/", (req, res) => {
-  res.send("Server running ✅");
+  res.json({
+    status: "ok",
+    message: "Backend running ✅"
+  });
 });
 
+/* ===== HTTP + WebSocket Server ===== */
 const server = http.createServer(app);
-
-// WebSocket
 initWebSocket(server);
 
-const PORT = process.env.PORT || 3000;
+/* ===== Start Server (Railway) ===== */
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
-  console.log("🚀 Backend running");
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log("🌍 CORS enabled");
   console.log("📡 WebSocket active");
 });
