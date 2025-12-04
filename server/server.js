@@ -13,13 +13,14 @@ const app = express();
 app.use(express.json());
 
 // CORS via env
-// CORS_ALLOWED_ORIGINS = " `https://frontend.app,https://another.app` "
-const { CORS_ALLOWED_ORIGINS = '', CORS_ALLOW_ALL = 'false' } = process.env;
+// CORS_ALLOWED_ORIGINS = "https://frontend.app,https://another.app"
+const { CORS_ALLOWED_ORIGINS = '', CORS_ORIGINS = '', CORS_ALLOW_ALL = 'false' } = process.env;
 let corsOptions = {};
 if (CORS_ALLOW_ALL === 'true') {
-  corsOptions = { origin: true, credentials: true };
+  corsOptions = { origin: true, credentials: true, methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'], allowedHeaders: ['Authorization','Content-Type','X-Requested-With'] };
 } else {
-  const origins = CORS_ALLOWED_ORIGINS
+  const configured = CORS_ALLOWED_ORIGINS || CORS_ORIGINS;
+  const origins = configured
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);
@@ -30,10 +31,14 @@ if (CORS_ALLOW_ALL === 'true') {
       if (origins.includes(origin)) return cb(null, true);
       cb(new Error('Not allowed by CORS'));
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+    allowedHeaders: ['Authorization','Content-Type','X-Requested-With']
   };
 }
 app.use(cors(corsOptions));
+// Explicitly handle preflight for all routes
+app.options('*', cors(corsOptions));
 
 // Mount API router under /api
 app.use('/api', apiRouter);
