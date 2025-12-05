@@ -53,7 +53,8 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', api: true }));
 const server = http.createServer(app);
 
 // Init WebSocket only if enabled
-if (process.env.WS_ENABLED === 'true') {
+const WS_ENABLED = String(process.env.WS_ENABLED || '').trim().toLowerCase() === 'true';
+if (WS_ENABLED) {
   initWebSocket(server);
   console.log('WebSocket: enabled');
 } else {
