@@ -1,44 +1,46 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+require('dotenv').config();
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import apiRouter from './api/index.js';
 import { initWebSocket } from './websocket/wsService.js';
 
-dotenv.config();
-
 const app = express();
 
-// parse JSON
-app.use(express.json());
-
-// CORS via env
-// CORS_ALLOWED_ORIGINS = "https://frontend.app,https://another.app"
-const { CORS_ALLOWED_ORIGINS = '', CORS_ORIGINS = '', CORS_ALLOW_ALL = 'false' } = process.env;
-let corsOptions = {};
-if (CORS_ALLOW_ALL === 'true') {
-  corsOptions = { origin: true, credentials: true, methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'], allowedHeaders: ['Authorization','Content-Type','X-Requested-With'] };
-} else {
-  const configured = CORS_ALLOWED_ORIGINS || CORS_ORIGINS;
-  const origins = configured
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
-  corsOptions = {
-    origin: (origin, cb) => {
-      // allow non-browser (curl/postman) requests that have no origin
-      if (!origin) return cb(null, true);
-      if (origins.includes(origin)) return cb(null, true);
-      cb(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-    allowedHeaders: ['Authorization','Content-Type','X-Requested-With']
-  };
-}
+const origins = String(process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const vercelRegex = process.env.CORS_ALLOW_VERCEL_REGEX
+  ? new RegExp(process.env.CORS_ALLOW_VERCEL_REGEX)
+  : null;
+const debug = process.env.CORS_DEBUG === 'true';
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (!origin) {
+      if (debug) console.log('no-origin allowance');
+      return cb(null, true);
+    }
+    if (origins.includes(origin)) {
+      if (debug) console.log('allowed origin', origin);
+      return cb(null, true);
+    }
+    if (vercelRegex && vercelRegex.test(origin)) {
+      if (debug) console.log('regex matches', vercelRegex.source, '→', origin);
+      return cb(null, true);
+    }
+    if (debug) console.log('blocked origin', origin);
+    cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+};
 app.use(cors(corsOptions));
-// Explicitly handle preflight for all routes
 app.options('*', cors(corsOptions));
+app.use(express.json());
 
 // Mount API router under /api
 app.use('/api', apiRouter);
