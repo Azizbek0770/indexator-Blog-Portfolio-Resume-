@@ -136,6 +136,14 @@ router.patch('/:id/read', authenticateToken, isAdmin, async (req, res) => {
           data: null
         });
       }
+      const msg = (error.message || '').toLowerCase();
+      if (msg.includes('invalid input syntax') || msg.includes('uuid')) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid message id',
+          data: null
+        });
+      }
       throw error;
     }
 
