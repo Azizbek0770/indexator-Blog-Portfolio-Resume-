@@ -21,7 +21,7 @@ const TimelineCard = ({ item, icon: Icon, index }) => {
       </div>
 
       {/* Content Card */}
-      <div className={`w-5/12 ${isEven ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
+      <div className={`w-full md:w-5/12 ${isEven ? 'md:pr-8 text-right md:text-right text-left' : 'md:pl-8 text-left'}`}>
         <motion.div
           whileHover={{ scale: 1.05 }}
           className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"

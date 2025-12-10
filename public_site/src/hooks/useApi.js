@@ -5,17 +5,44 @@ export const useApi = (endpoint) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [info, setInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      const startedAt = Date.now();
+      const baseURL = api.defaults.baseURL || '';
+      const url = `${baseURL}${endpoint || ''}`;
       try {
         setLoading(true);
         const response = await api.get(endpoint);
-        setData(response.data.data);
+        const payload = response?.data?.data;
+        setData(payload);
         setError(null);
+        setInfo({
+          url,
+          endpoint,
+          status: response.status,
+          ok: true,
+          startedAt,
+          finishedAt: Date.now(),
+          durationMs: Date.now() - startedAt,
+          length: Array.isArray(payload) ? payload.length : undefined
+        });
       } catch (err) {
-        setError(err.message);
+        const status = err?.response?.status;
+        const message = err?.response?.data?.message || err.message;
+        setError(message);
         console.error('API Error:', err);
+        setInfo({
+          url,
+          endpoint,
+          status,
+          ok: false,
+          errorMessage: message,
+          startedAt,
+          finishedAt: Date.now(),
+          durationMs: Date.now() - startedAt
+        });
       } finally {
         setLoading(false);
       }
@@ -26,7 +53,7 @@ export const useApi = (endpoint) => {
     }
   }, [endpoint]);
 
-  return { data, loading, error };
+  return { data, loading, error, info };
 };
 
 export const useApiPost = () => {

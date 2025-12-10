@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useAnimation';
-import { useApiPost } from '../hooks/useApi';
+import { useApi, useApiPost } from '../hooks/useApi';
 import toast from 'react-hot-toast';
 import { fadeInUp, staggerContainer } from '../utils/animations';
 
 const Contact = () => {
   const { ref, inView } = useScrollAnimation();
   const { post, loading } = useApiPost();
+  const { data: settings } = useApi('/settings');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -41,6 +42,26 @@ const Contact = () => {
     { icon: Phone, title: 'Phone', value: '+1 (555) 123-4567', link: 'tel:+15551234567' },
     { icon: MapPin, title: 'Location', value: 'San Francisco, CA', link: '#' }
   ];
+
+  const socialLinks = settings?.social_links || {};
+  const normalize = (key, raw) => {
+    if (!raw) return null;
+    const val = String(raw).trim().replace(/^#/, '');
+    if (/^https?:\/\//i.test(val)) return val;
+    const handle = val.replace(/^@/, '').replace(/^\//, '');
+    switch (key) {
+      case 'github':
+        return val.includes('github.com') ? `https://${val.replace(/^https?:\/\//, '')}` : `https://github.com/${handle}`;
+      case 'linkedin':
+        return val.includes('linkedin.com') ? `https://${val.replace(/^https?:\/\//, '')}` : `https://www.linkedin.com/in/${handle}`;
+      case 'twitter':
+        return val.includes('twitter.com') || val.includes('x.com')
+          ? `https://${val.replace(/^https?:\/\//, '')}`
+          : `https://twitter.com/${handle}`;
+      default:
+        return `https://${handle}`;
+    }
+  };
 
   return (
     <section id="contact" className="py-24 bg-white dark:bg-gray-900">
@@ -103,17 +124,25 @@ const Contact = () => {
             <div className="pt-4">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Follow Me</h4>
               <div className="flex space-x-4">
-                {['github', 'linkedin', 'twitter'].map((social) => (
-                  <a
-                    key={social}
-                    href={`#${social}`}
-                    className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-primary-600 dark:hover:bg-primary-600 hover:text-white transition-colors"
-                  >
-                    <span className="sr-only">{social}</span>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387..." />
-                    </svg>
-                  </a>
+                {[
+                  { key: 'github', href: normalize('github', socialLinks.github) },
+                  { key: 'linkedin', href: normalize('linkedin', socialLinks.linkedin) },
+                  { key: 'twitter', href: normalize('twitter', socialLinks.twitter) }
+                ].map(({ key, href }) => (
+                  href ? (
+                    <a
+                      key={key}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-primary-600 dark:hover:bg-primary-600 hover:text-white transition-colors"
+                    >
+                      <span className="sr-only">{key}</span>
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387" />
+                      </svg>
+                    </a>
+                  ) : null
                 ))}
               </div>
             </div>

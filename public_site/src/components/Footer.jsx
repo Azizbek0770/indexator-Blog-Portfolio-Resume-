@@ -8,11 +8,31 @@ const Footer = () => {
 
   const socialLinks = settings?.social_links || {};
 
+  const normalize = (key, raw) => {
+    if (!raw) return null;
+    const val = String(raw).trim().replace(/^#/, '');
+    if (key === 'email') return val.startsWith('mailto:') ? val : `mailto:${val}`;
+    if (/^https?:\/\//i.test(val)) return val;
+    const handle = val.replace(/^@/, '').replace(/^\//, '');
+    switch (key) {
+      case 'github':
+        return val.includes('github.com') ? `https://${val.replace(/^https?:\/\//, '')}` : `https://github.com/${handle}`;
+      case 'linkedin':
+        return val.includes('linkedin.com') ? `https://${val.replace(/^https?:\/\//, '')}` : `https://www.linkedin.com/in/${handle}`;
+      case 'twitter':
+        return val.includes('twitter.com') || val.includes('x.com')
+          ? `https://${val.replace(/^https?:\/\//, '')}`
+          : `https://twitter.com/${handle}`;
+      default:
+        return `https://${handle}`;
+    }
+  };
+
   const socialIcons = {
-    github: { icon: Github, url: socialLinks.github },
-    linkedin: { icon: Linkedin, url: socialLinks.linkedin },
-    twitter: { icon: Twitter, url: socialLinks.twitter },
-    email: { icon: Mail, url: socialLinks.email ? `mailto:${socialLinks.email}` : null }
+    github: { icon: Github, url: normalize('github', socialLinks.github) },
+    linkedin: { icon: Linkedin, url: normalize('linkedin', socialLinks.linkedin) },
+    twitter: { icon: Twitter, url: normalize('twitter', socialLinks.twitter) },
+    email: { icon: Mail, url: normalize('email', socialLinks.email) }
   };
 
   return (

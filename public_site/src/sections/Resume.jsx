@@ -6,11 +6,12 @@ import { useScrollAnimation } from '../hooks/useAnimation';
 import SkillBar from '../components/SkillBar';
 import TimelineCard from '../components/TimelineCard';
 import { fadeInUp, staggerContainer } from '../utils/animations';
+import { format } from 'date-fns';
 
 const Resume = () => {
   const { data: skills } = useApi('/skills');
   const { data: experience } = useApi('/experience');
-  const { data: education } = useApi('/education');
+  const { data: education, loading: educationLoading, error: educationError } = useApi('/education');
   const { data: certificates } = useApi('/certificates');
   const { ref, inView } = useScrollAnimation();
   const [activeTab, setActiveTab] = useState('experience');
@@ -140,14 +141,51 @@ const Resume = () => {
                     transition={{ duration: 0.45 }}
                     className="space-y-8"
                   >
-                    {!Array.isArray(education) || education.length === 0 ? (
-                      <div className="rounded-xl bg-white dark:bg-gray-800 p-6 text-center text-gray-500">
-                        No education records found.
+                    
+                    {Array.isArray(education) && education.length > 0 && (
+                      <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+                        <div className="grid grid-cols-1 gap-4">
+                          {education.map((e, i) => (
+                            <article key={e.id ?? i} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                              <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 dark:bg-primary-900/30 rounded-full mb-3 text-primary-700 dark:text-primary-300 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M7 2a1 1 0 0 0-1 1v1H5a3 3 0 0 0-3 3v11a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3h-1V3a1 1 0 1 0-2 0v1H8V3a1 1 0 0 0-1-1Zm13 6v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8h16Z"/></svg>
+                                <span>
+                                  {format(new Date(e.start_date), 'MMM yyyy')} - {e.current || !e.end_date ? 'Present' : format(new Date(e.end_date), 'MMM yyyy')}
+                                </span>
+                              </div>
+                              <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{e.degree} — {e.school}</h4>
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {e.field && <span className="px-2 py-1 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{e.field}</span>}
+                                {e.gpa && <span className="px-2 py-1 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">GPA: {e.gpa}</span>}
+                                {e.current && <span className="px-2 py-1 text-xs rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Current</span>}
+                              </div>
+                              {e.description && <p className="text-sm text-gray-700 dark:text-gray-300">{e.description}</p>}
+                            </article>
+                          ))}
+                        </div>
+                        
                       </div>
-                    ) : (
-                      education.map((item, index) => (
-                        <TimelineCard key={item.id ?? index} item={item} icon={GraduationCap} index={index} />
-                      ))
+                    )}
+                    {educationLoading && (
+                      <div className="rounded-xl bg-white dark:bg-gray-800 p-6 text-center text-gray-500">
+                        Loading education...
+                      </div>
+                    )}
+                    {educationError && (
+                      <div className="rounded-xl bg-white dark:bg-gray-800 p-6 text-center text-red-500">
+                        Failed to load education: {String(educationError)}
+                      </div>
+                    )}
+                    {!educationLoading && !educationError && (
+                      !Array.isArray(education) || education.length === 0 ? (
+                        <div className="rounded-xl bg-white dark:bg-gray-800 p-6 text-center text-gray-500">
+                          No education records found.
+                        </div>
+                      ) : (
+                        education.map((item, index) => (
+                          <TimelineCard key={item.id ?? index} item={item} icon={GraduationCap} index={index} />
+                        ))
+                      )
                     )}
                   </motion.div>
                 )}

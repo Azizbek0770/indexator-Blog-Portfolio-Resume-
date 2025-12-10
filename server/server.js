@@ -18,8 +18,13 @@ const vercelRegex = process.env.CORS_ALLOW_VERCEL_REGEX
   ? new RegExp(process.env.CORS_ALLOW_VERCEL_REGEX)
   : null;
 const debug = process.env.CORS_DEBUG === 'true';
+const isDev = (process.env.NODE_ENV || 'development') === 'development';
 const corsOptions = {
   origin: (origin, cb) => {
+    if (isDev) {
+      if (debug) console.log('dev-allow', origin || '(no-origin)');
+      return cb(null, true);
+    }
     if (!origin) {
       if (debug) console.log('no-origin allowance');
       return cb(null, true);
