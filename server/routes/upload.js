@@ -1,4 +1,5 @@
 import express from 'express'
+import crypto from 'crypto'
 import multer from 'multer'
 import { supabase } from '../database/supabase.js'
 import { authenticateToken, isAdmin } from '../middleware/auth.js'
@@ -43,7 +44,7 @@ router.post(
 
       // ✅ Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('blog_media')
+        .from(process.env.STORAGE_BUCKET || 'blog_media')
         .upload(filePath, buffer, {
           contentType: mimetype,
           cacheControl: '3600',
@@ -54,7 +55,7 @@ router.post(
 
       // ✅ Get public URL
       const { data } = supabase.storage
-        .from('blog_media')
+        .from(process.env.STORAGE_BUCKET || 'blog_media')
         .getPublicUrl(filePath)
 
       return res.status(201).json({
@@ -88,7 +89,7 @@ router.delete(
       const filePath = `uploads/${filename}`
 
       const { error } = await supabase.storage
-        .from('blog_media')
+        .from(process.env.STORAGE_BUCKET || 'blog_media')
         .remove([filePath])
 
       if (error) throw error
