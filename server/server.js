@@ -5,6 +5,9 @@ require('dotenv').config();
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
 import apiRouter from './api/index.js';
 import { initWebSocket } from './websocket/wsService.js';
 
@@ -45,6 +48,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined'));
 app.use(express.json());
 
 // Mount API router under /api
@@ -67,8 +73,11 @@ if (WS_ENABLED) {
 }
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+const isTest = (process.env.NODE_ENV || '').toLowerCase() === 'test';
+if (!isTest) {
+  server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
+}
 
 export default app;

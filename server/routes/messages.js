@@ -1,5 +1,5 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 
 import { supabase } from '../database/supabase.js';
 import {
@@ -117,7 +117,12 @@ router.get('/', authenticateToken, isAdmin, async (req, res) => {
 });
 
 // Mark message as read (admin only)
-router.patch('/:id/read', authenticateToken, isAdmin, async (req, res) => {
+router.patch('/:id/read',
+  authenticateToken,
+  isAdmin,
+  [param('id').isUUID().withMessage('Invalid message id')],
+  validate,
+  async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -163,7 +168,12 @@ router.patch('/:id/read', authenticateToken, isAdmin, async (req, res) => {
 });
 
 // Delete message (admin only)
-router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
+router.delete('/:id',
+  authenticateToken,
+  isAdmin,
+  [param('id').isUUID().withMessage('Invalid message id')],
+  validate,
+  async (req, res) => {
   try {
     const { id } = req.params;
 
