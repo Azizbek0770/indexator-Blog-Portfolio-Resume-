@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/curbadmin0270", "destination": "/index.html" },
+    { "source": "/curbadmin0270/(.*)", "destination": "/index.html" }
+  ]
+}
